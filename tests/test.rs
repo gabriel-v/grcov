@@ -314,16 +314,16 @@ fn create_zip(zip_path: &Path, base_dir: &Path, files_glob: &str) {
 
 #[test]
 fn test_integration() {
-    if cfg!(windows) {
-        println!("Integration tests still not supported under Windows.");
-        return;
-    }
-
     for entry in WalkDir::new("tests").min_depth(1) {
         let entry = entry.unwrap();
         let path = entry.path();
 
         if path == Path::new("tests/basic_zip") {
+            continue;
+        }
+
+        // Only tests/basic is supported on Windows for now.
+        if cfg!(windows) && path != Path::new("tests/basic") {
             continue;
         }
 
@@ -365,15 +365,15 @@ fn test_integration() {
 
 #[test]
 fn test_integration_zip() {
-    if cfg!(windows) {
-        println!("Integration tests still not supported under Windows.");
-        return;
-    }
-
     let compilers = vec!["g++", "clang++"];
 
     for compiler in compilers {
         let is_llvm = compiler == "clang++";
+
+        if cfg!(windows) && !is_llvm {
+            continue;
+        }
+
         let name = if is_llvm {
             "llvm"
         } else {
